@@ -1,15 +1,22 @@
 require 'drb/drb'
 require 'thread'
 
-$SAFE = 1
-
 class Server
   include DRb::DRbUndumped
+  
+  attr_reader :uri, :program_class
+  
+  def initialize(program_class, uri = nil)
+    @uri = uri || DRb::DRbServer.new.uri
+    @program_class = program_class
+    puts "#{@program_class} Server initiated on #{@uri}"
+  end
 
-  def self.start(server_class, uri = nil)
+  def start(workers = nil)
     Socket.do_not_reverse_lookup = true
-    DRb.start_service(uri, server_class.new)
-    puts "#{server_class} server running on #{DRb.uri}"
+    class_args = [uri, workers].compact
+    DRb.start_service(uri, program_class.new(*class_args))
+    puts "#{program_class} server running on #{DRb.uri}"
     DRb.thread.join
   end
 

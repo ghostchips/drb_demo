@@ -1,19 +1,15 @@
 require 'thread'
-require_relative 'server'
-require_relative 'lib/queue'
-require_relative 'lib/worker'
+require_relative 'config'
 
-PROGRAMS = [
-  Worker,
-  [UriQueue, UriQueue::URI_ADDRESS]
-]
-
-URIS = []
-
-  threads = PROGRAMS.map do |(klass, uri)|
-    Thread.new do
-      Server.start(klass, uri)
+threads = ::PROGRAMS.map do |(program_class, uri)|
+  Thread.new do
+    server = Server.new(program_class, uri)
+    if program_class == PoolQueue
+      server.start(::WORKER_URIS)
+    else
+      server.start
     end
   end
+end
 
 threads.each(&:join)
