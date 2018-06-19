@@ -1,5 +1,4 @@
-require 'drb/drb'
-require 'thread'
+require_relative '../config'
 
 class PoolQueue
   include DRb::DRbUndumped
@@ -11,7 +10,7 @@ class PoolQueue
     @remove_uri = nil
     add_uris(worker_uris) unless worker_uris.empty?
   end
-  
+
   def uri
     @uri
   end
@@ -22,24 +21,24 @@ class PoolQueue
       @remove_uri = uri
     end
   end
-    
+
   def next_worker_uri
     cycle_queue unless queue.size.zero?
   end
-  
+
   def next_worker_uri!
     cycle_queue(true) unless queue.size.zero?
   end
-  
+
   private
   attr_reader :queue, :mutex
-  
+
   def add_uris(uris)
-    uris.each do |uri| 
+    uris.each do |uri|
       mutex.synchronize { queue << uri }
     end
   end
-  
+
   def cycle_queue(destructive = false)
     next_uri =
       loop do

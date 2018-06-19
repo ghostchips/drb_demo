@@ -5,15 +5,15 @@ class Test
   include DRb::DRbUndumped
 
   attr_accessor :num
-  
+
   def initialize(num); @num = num; end
   def add; num + num; end
 end
 
-DRb.start_service
+DRb.start_service('druby://127.0.0.1:9001')
 
 # Reference PoolQueue object
-pool = DRbObject.new_with_uri('druby://localhost:8786')
+pool = DRbObject.new_with_uri('druby://127.0.0.1:9000')
 
 # gets next worker uri, put uri back on queue
 worker_uri_1 = pool.next_worker_uri
